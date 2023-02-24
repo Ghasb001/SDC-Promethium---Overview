@@ -1,0 +1,22 @@
+{
+  "name": "overview",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Promethium2209/Overview.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Promethium2209/Overview/issues"
+  },
+  "homepage": "https://github.com/Promethium2209/Overview#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
