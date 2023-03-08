@@ -18,25 +18,34 @@ const singleProduct = (req, res) => {
 
 // Single Product style API call
 const productStlye = (req, res) => {
-  client.query(`SELECT style_id, name, original_price, sale_price, default_style FROM styles WHERE product_id = ${req.params.product_id}`)
-    .then((styleData) => {
-      var send = {product_id: req.params.product_id};
-      send.results = styleData.rows;
-      var resultArray = send.results[0];
-      // delete Object.assign(o, {[newKey]: o[oldKey] })[oldKey];
-      delete Object.assign(resultArray, {['default?']: resultArray.default_style });
-      delete resultArray.default_style;
-      //res.status(200).json(send);
-      send.results[0].photos = [];
-      client.query(`SELECT thumbnail_url, url FROM photos WHERE style_id = ${resultArray.style_id}`)
-      .then ((pics) => {
-        pics.rows.forEach(p => {send.results[0].photos.push(p)})
-        console.log(send);
-        res.status(200).json(send);
-      })
-      .catch(err => {{ res.sendStatus(404); throw err; }})
+  var send = {product_id: req.params.product_id}
+  client.query(`select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as default, (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id = ${req.params.product_id};`)
+    .then((products) => {
+      let styles = products.rows;
+
+      for (var i = 0; i < styles.length; i++) {
+        let skus = styles[i].skus;
+        let skuNew = {};
+
+        if (skus) {
+          for (var j = 0; j < skus.length; j++) {
+            skuNew[skus[j].sku_id] = {
+              size: skus[j].size,
+              quantity: skus[j].quantity
+            };
+          }
+        }
+        skus = skuNew;
+        styles[i].skus = skuNew;
+      }
+      send.results = styles;
+      console.log(send);
+      res.status(200).json(send);
     })
-    .catch((err) => { res.sendStatus(404); throw err; });
+    .catch((err) => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 // Related Product calls for a specific product
@@ -50,6 +59,7 @@ const relatedProducts = (req, res) => {
     })
     .catch((err) => { res.sendStatus(404); throw err; });
 };
+
 
 module.exports.singleProduct = singleProduct;
 module.exports.productStlye = productStlye;
