@@ -25,27 +25,23 @@ const productStlye = (req, res) => {
 
       for (var i = 0; i < styles.length; i++) {
         let skus = styles[i].skus;
-        let skuNew = {};
+        let skuObj = {};
 
         if (skus) {
           for (var j = 0; j < skus.length; j++) {
-            skuNew[skus[j].sku_id] = {
+            skuObj[skus[j].sku_id] = {
               size: skus[j].size,
               quantity: skus[j].quantity
             };
           }
         }
-        skus = skuNew;
-        styles[i].skus = skuNew;
+        skus = skuObj;
+        styles[i].skus = skuObj;
       }
       send.results = styles;
-      console.log(send);
       res.status(200).json(send);
     })
-    .catch((err) => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+    .catch((err) => { res.sendStatus(404); throw err; });
 };
 
 // Related Product calls for a specific product
