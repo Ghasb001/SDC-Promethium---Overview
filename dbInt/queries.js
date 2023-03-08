@@ -1,6 +1,13 @@
 const { client } = require('./db.js');
 
 // ALL the products (good luck)
+const allProducts = (req, res) => {
+  client.query('SELECT * FROM productlist')
+  .then((list) => {
+    res.status(200).json(list.rows);
+  })
+  .catch((err) => { res.sendStatus(500); throw err; });
+}
 
 // Single product API call
 const singleProduct = (req, res) => {
@@ -13,7 +20,7 @@ const singleProduct = (req, res) => {
       })
       .catch((err) => { throw err; });
     })
-    .catch((err) => { res.sendStatus(404); throw err; });
+    .catch((err) => { res.sendStatus(500); throw err; });
 };
 
 // Single Product style API call
@@ -41,7 +48,7 @@ const productStlye = (req, res) => {
       send.results = styles;
       res.status(200).json(send);
     })
-    .catch((err) => { res.sendStatus(404); throw err; });
+    .catch((err) => { res.sendStatus(500); throw err; });
 };
 
 // Related Product calls for a specific product
@@ -53,10 +60,10 @@ const relatedProducts = (req, res) => {
       relatedIds.forEach(x => { relatedArray.push(Object.values(x)[0])})
       res.status(200).json(relatedArray)
     })
-    .catch((err) => { res.sendStatus(404); throw err; });
+    .catch((err) => { res.sendStatus(500); throw err; });
 };
 
-
+module.exports.allProducts = allProducts;
 module.exports.singleProduct = singleProduct;
 module.exports.productStlye = productStlye;
 module.exports.relatedProducts = relatedProducts;
