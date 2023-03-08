@@ -18,12 +18,23 @@ const singleProduct = (req, res) => {
 
 // Single Product style API call
 const productStlye = (req, res) => {
-  var string =
   client.query(`SELECT style_id, name, original_price, sale_price, default_style FROM styles WHERE product_id = ${req.params.product_id}`)
     .then((styleData) => {
-      var send = {product_id: req.params.product_id}
+      var send = {product_id: req.params.product_id};
       send.results = styleData.rows;
-      res.status(200).json(send)
+      var resultArray = send.results[0];
+      // delete Object.assign(o, {[newKey]: o[oldKey] })[oldKey];
+      delete Object.assign(resultArray, {['default?']: resultArray.default_style });
+      delete resultArray.default_style;
+      //res.status(200).json(send);
+      send.results[0].photos = [];
+      client.query(`SELECT thumbnail_url, url FROM photos WHERE style_id = ${resultArray.style_id}`)
+      .then ((pics) => {
+        pics.rows.forEach(p => {send.results[0].photos.push(p)})
+        console.log(send);
+        res.status(200).json(send);
+      })
+      .catch(err => {{ res.sendStatus(404); throw err; }})
     })
     .catch((err) => { res.sendStatus(404); throw err; });
 };
