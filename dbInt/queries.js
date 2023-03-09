@@ -2,7 +2,13 @@ const { client } = require('./db.js');
 
 // ALL the products (good luck)
 const allProducts = (req, res) => {
-  client.query('SELECT * FROM productlist')
+  if (req.params.page === undefined) {
+    req.params.page = 1;
+  }
+  if (req.params.count === undefined) {
+    req.params.count = 5;
+  }
+  client.query(`SELECT * FROM productlist where product_id <= ${req.params.count}`)
   .then((list) => {
     res.status(200).json(list.rows);
   })
