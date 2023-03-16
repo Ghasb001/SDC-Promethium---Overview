@@ -32,10 +32,10 @@ const singleProduct = (req, res) => {
 // Single Product style API call
 const productStlye = (req, res) => {
   var send = {product_id: req.params.product_id}
-  client.query(`select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as default, (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id = ${req.params.product_id};`)
+  client.query(`select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as "default?", (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id = ${req.params.product_id};`)
     .then((products) => {
       let styles = products.rows;
-
+      console.log(styles)
       for (var i = 0; i < styles.length; i++) {
         let skus = styles[i].skus;
         let skuObj = {};
