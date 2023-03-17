@@ -1,5 +1,4 @@
 const { Client } = require('pg');
-const { connection } = require('./connection.js')
 
 const client = new Client({
   user: 'guillermohasbun',

@@ -1,4 +1,5 @@
 const { client } = require('./dbInt/db.js');
+require("dotenv").config();
 
 describe("Example tests", function () {
   var stack = [];
@@ -17,7 +18,6 @@ describe("Connects to the database", function () {
 
 describe("Can make db queries", function () {
   // current testing timeout set to a minute in order to facilitate large searches
-  jest.setTimeout(60000);
   test("Single product query", () => {
     return client.query('SELECT * FROM productlist WHERE product_id = 1;')
       .then(data => {
@@ -26,8 +26,13 @@ describe("Can make db queries", function () {
       .catch(err => console.log(err))
   });
 
-  test("Single product style", async () => {
-    await client.query('select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as default, (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id = 71701')
+  test("Single product style", () => {
+    let randomItem = () => {
+      var min = Math.ceil(1);
+      var max = Math.floor(1000011);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    return client.query(`${process.env.styleString} = ${randomItem()};`)
       .then(data => {
         expect(data.rows.length).toBeGreaterThanOrEqual(1);
       })
@@ -48,9 +53,25 @@ describe("Can make db queries", function () {
       .then(data => console.log(data))
       .catch(err => {
         expect(err.dataType).toBe(undefined);
-        console.log('Error detected in the query')}
-        )
+        console.log('Error caught successfully')})
+  });
+
+});
+
+describe("Speed tests", function () {
+  test("Runs largest query under 50 ms", () => {
+    let randomItem = () => {
+      var min = Math.ceil(1);
+      var max = Math.floor(1000011);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    const start = performance.now();
+    return client.query(`${process.env.styleString} = ${randomItem()};`)
+      .then(data => {
+        const end = performance.now();
+        expect(end - start).toBeLessThan(50);
+      })
+      .catch(err => console.log(err))
       .finally(() => { client.end(); })
   });
 });
-

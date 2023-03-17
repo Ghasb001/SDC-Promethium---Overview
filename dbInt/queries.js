@@ -2,13 +2,14 @@ const { client } = require('./db.js');
 
 // ALL the products (good luck)
 const allProducts = (req, res) => {
-  if (req.params.page === undefined) {
-    req.params.page = 1;
+  console.log('allP')
+  if (req.query.page === undefined) {
+    req.query.page = 1;
   }
-  if (req.params.count === undefined) {
-    req.params.count = 5;
+  if (req.query.count === undefined) {
+    req.query.count = 5;
   }
-  client.query(`SELECT * FROM productlist where product_id <= ${req.params.count}`)
+  client.query(`SELECT * FROM productlist where product_id <= ${req.query.count}`)
   .then((list) => {
     res.status(200).json(list.rows);
   })
@@ -17,6 +18,7 @@ const allProducts = (req, res) => {
 
 // Single product API call
 const singleProduct = (req, res) => {
+  console.log('hit');
   client.query(`SELECT * FROM productlist WHERE product_id = ${req.params.product_id}`)
     .then((productData) => {
       client.query(`SELECT feature, value FROM features WHERE product_id = ${req.params.product_id}`)
@@ -35,7 +37,6 @@ const productStlye = (req, res) => {
   client.query(`select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as "default?", (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id = ${req.params.product_id};`)
     .then((products) => {
       let styles = products.rows;
-      console.log(styles)
       for (var i = 0; i < styles.length; i++) {
         let skus = styles[i].skus;
         let skuObj = {};
