@@ -28,9 +28,7 @@ describe("Can make db queries", function () {
 
   test("Single product style", () => {
     let randomItem = () => {
-      var min = Math.ceil(1);
-      var max = Math.floor(1000011);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+      return Math.floor(Math.random() * (1000011 - 1 + 1)) + 1;
     }
     return client.query(`${process.env.styleString} = ${randomItem()};`)
       .then(data => {
@@ -59,17 +57,53 @@ describe("Can make db queries", function () {
 });
 
 describe("Speed tests", function () {
-  test("Runs largest query under 50 ms", () => {
-    let randomItem = () => {
-      var min = Math.ceil(1);
-      var max = Math.floor(1000011);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+  var speedObj = {};
+  let randomItem = () => {
+    return Math.floor(Math.random() * (1000011 - 6 + 6)) + 6;
+  }
+
+  test("Runs list product query under 50 ms", () => {
+    let current = randomItem();
+    const start = performance.now();
+    return client.query(`select * from productlist where product_id <= ${current} and product_id >= ${current - 5};`)
+      .then(data => {
+        const end = performance.now();
+        expect(end - start).toBeLessThan(50);
+        speedObj.list = (end - start)
+      })
+      .catch(err => console.log(err))
+  });
+
+  test("Runs single product query under 50 ms", () => {
+    const start = performance.now();
+    return client.query(`${process.env.productString} = ${randomItem()}`)
+      .then(data => {
+        const end = performance.now();
+        expect(end - start).toBeLessThan(50);
+        speedObj.singleProduct = (end - start)
+      })
+      .catch(err => console.log(err))
+  });
+
+  test("Runs related product query under 50 ms", () => {
+    const start = performance.now();
+    return client.query(`${process.env.relatedString} = ${randomItem()}`)
+      .then(data => {
+        const end = performance.now();
+        expect(end - start).toBeLessThan(50);
+        speedObj.related = (end - start)
+      })
+      .catch(err => console.log(err))
+  });
+
+  test("Runs style query under 50 ms", () => {
     const start = performance.now();
     return client.query(`${process.env.styleString} = ${randomItem()};`)
       .then(data => {
         const end = performance.now();
         expect(end - start).toBeLessThan(50);
+        speedObj.styles = (end - start)
+        console.log(speedObj)
       })
       .catch(err => console.log(err))
       .finally(() => { client.end(); })
