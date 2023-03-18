@@ -18,7 +18,6 @@ const allProducts = (req, res) => {
 
 // Single product API call
 const singleProduct = (req, res) => {
-  console.log('hit');
   client.query(`SELECT * FROM productlist WHERE product_id = ${req.params.product_id}`)
     .then((productData) => {
       client.query(`SELECT feature, value FROM features WHERE product_id = ${req.params.product_id}`)
