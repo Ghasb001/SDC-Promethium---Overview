@@ -5,7 +5,7 @@ The purpose of this project was to create a back-end server and API to handle an
 - Handle roughly 1000-1300 rps, tested with K6 integration.
 
 ### Database Schema
-<img title="Rating" alt="Alt text" src="schema.png">
+<img title="Rating" alt="Alt text" src="./schema.png">
 
 ### Built With
 - Node.js
