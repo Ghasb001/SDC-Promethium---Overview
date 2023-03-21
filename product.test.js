@@ -59,13 +59,13 @@ describe("Can make db queries", function () {
 describe("Speed tests", function () {
   var speedObj = {};
   let randomItem = () => {
-    return Math.floor(Math.random() * (1000011 - 6 + 6)) + 6;
+    return Math.floor(Math.random() * (1000011 - 1 + 1)) + 1;
   }
 
   test("Runs list product query under 50 ms", () => {
     let current = randomItem();
     const start = performance.now();
-    return client.query(`select * from productlist where product_id <= ${current} and product_id >= ${current - 5};`)
+    return client.query(`select * from productlist where product_id <= ${current + 5} and product_id >= ${current};`)
       .then(data => {
         const end = performance.now();
         expect(end - start).toBeLessThan(50);
