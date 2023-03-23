@@ -1,6 +1,10 @@
 const { client } = require('./dbInt/db.js');
 require("dotenv").config();
 
+const productString= "select * from productlist where product_id";
+const styleString= "select s.style_id, s.name, s.sale_price, s.original_price, s.default_style as default, (select json_agg(p) as photos from (select photos.thumbnail_url, photos.url from photos where photos.style_id = s.style_id) as p),(select json_agg(skus) as skus from skus where s.style_id = skus.style_id) from styles as s where product_id";
+const relatedString= "select * from related where product_id";
+
 describe("Example tests", function () {
   var stack = [];
   test("Should fire an example test", () => {
@@ -30,7 +34,7 @@ describe("Can make db queries", function () {
     let randomItem = () => {
       return Math.floor(Math.random() * (1000011 - 1 + 1)) + 1;
     }
-    return client.query(`${process.env.styleString} = ${randomItem()};`)
+    return client.query(`${styleString} = ${randomItem()};`)
       .then(data => {
         expect(data.rows.length).toBeGreaterThanOrEqual(1);
       })
@@ -76,7 +80,7 @@ describe("Speed tests", function () {
 
   test("Runs single product query under 50 ms", () => {
     const start = performance.now();
-    return client.query(`${process.env.productString} = ${randomItem()}`)
+    return client.query(`${productString} = ${randomItem()}`)
       .then(data => {
         const end = performance.now();
         expect(end - start).toBeLessThan(50);
@@ -87,7 +91,7 @@ describe("Speed tests", function () {
 
   test("Runs related product query under 50 ms", () => {
     const start = performance.now();
-    return client.query(`${process.env.relatedString} = ${randomItem()}`)
+    return client.query(`${relatedString} = ${randomItem()}`)
       .then(data => {
         const end = performance.now();
         expect(end - start).toBeLessThan(50);
@@ -98,7 +102,7 @@ describe("Speed tests", function () {
 
   test("Runs style query under 50 ms", () => {
     const start = performance.now();
-    return client.query(`${process.env.styleString} = ${randomItem()};`)
+    return client.query(`${styleString} = ${randomItem()};`)
       .then(data => {
         const end = performance.now();
         expect(end - start).toBeLessThan(50);
