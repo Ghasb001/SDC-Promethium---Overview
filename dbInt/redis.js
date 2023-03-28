@@ -1,11 +1,11 @@
-import { createClient } from 'redis';
+// import { createClient } from 'redis';
 
-const client = createClient();
+// const cache = createClient();
 
-client.on('error', err => console.log('Redis Client Error', err));
+// cache.on('error', err => console.log('Redis cache Error', err));
 
-await client.connect();
+// await cache.connect();
 
-await client.set('key', 'value');
-const value = await client.get('key');
-await client.disconnect();
+// await cache.set('key', 'value');
+// const value = await cache.get('key');
+// await cache.disconnect();

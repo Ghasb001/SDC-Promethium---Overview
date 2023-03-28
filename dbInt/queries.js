@@ -1,8 +1,16 @@
 const { client } = require('./db.js');
 
+const Redis = require('redis');
+const cache = Redis.createClient(6379);
+
+cache.connect()
+.then(() => {
+  console.log('Redis is Connected')
+})
+.catch(err => console.log(err))
+
 // ALL the products (good luck)
 const allProducts = (req, res) => {
-  console.log('allP')
   if (req.query.page === undefined) {
     req.query.page = 1;
   }
@@ -18,16 +26,29 @@ const allProducts = (req, res) => {
 
 // Single product API call
 const singleProduct = (req, res) => {
-  client.query(`SELECT * FROM productlist WHERE product_id = ${req.params.product_id}`)
-    .then((productData) => {
-      client.query(`SELECT feature, value FROM features WHERE product_id = ${req.params.product_id}`)
-      .then((featureData) => {
-        productData.rows[0].features = featureData.rows;
-        res.status(200).json(productData.rows[0]);
+  //console.log(singleFetch('1'))
+  // singleFetch(req.params.product_id);
+  cache.get(req.params.product_id.toString())
+  .then ((store) => {
+    if (store === null) {
+      client.query(`SELECT * FROM productlist WHERE product_id = ${req.params.product_id}`)
+      .then((productData) => {
+        client.query(`SELECT feature, value FROM features WHERE product_id = ${req.params.product_id}`)
+        .then((featureData) => {
+          productData.rows[0].features = featureData.rows;
+          //save the data into the cache
+          cache.set(req.params.product_id, JSON.stringify(productData.rows[0]));
+          //actually send the data
+          res.status(200).json(productData.rows[0]);
+        })
+        .catch((err) => { throw err; });
       })
-      .catch((err) => { throw err; });
-    })
-    .catch((err) => { res.sendStatus(500); throw err; });
+      .catch((err) => { res.sendStatus(500); throw err; });
+    } else {
+      res.status(200).json(JSON.parse(store));
+    }
+  })
+  .catch(err => res.sendStatus(500))
 };
 
 // Single Product style API call
