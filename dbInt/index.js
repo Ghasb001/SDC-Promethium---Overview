@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('It loads');
+  res.sendStatus(200);
 });
 
 // API Helper function calls
@@ -24,5 +24,3 @@ app.get ('/products/:product_id/related', relatedProducts)
 app.listen(1128, () => {
   console.log('Listening on port 1128!');
 });
-
-// module.exports.router = router;

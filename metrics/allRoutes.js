@@ -20,6 +20,7 @@ export default function () {
     return Math.floor(Math.random() * (1000011 - 1 + 1)) + 1;
   }
 
+  http.get('http://localhost:1128/products');
   http.get(`http://localhost:1128/products/${randomItem()}`);
   http.get(`http://localhost:1128/products/${randomItem()}/styles`);
   http.get(`http://localhost:1128/products/${randomItem()}/related`);

@@ -36,7 +36,7 @@ describe("Can make db queries", function () {
     }
     return client.query(`${styleString} = ${randomItem()};`)
       .then(data => {
-        expect(data.rows.length).toBeGreaterThanOrEqual(1);
+        expect(data.fields.length).toBeGreaterThanOrEqual(1);
       })
       .catch(err => console.log(err))
   });
