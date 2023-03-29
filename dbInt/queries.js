@@ -40,17 +40,11 @@ const singleProduct = (req, res) => {
   cache.get(`${req.params.product_id}SINGLE`)
     .then((store) => {
       if (store === null) {
-        client.query(`SELECT * FROM productlist WHERE product_id = ${req.params.product_id}`)
+        client.query(`select *, (select json_agg(f) as features from (select feature, value from features where features.product_id = productlist.product_id) as f) from productlist where product_id =${req.params.product_id};`)
           .then((productData) => {
-            client.query(`SELECT feature, value FROM features WHERE product_id = ${req.params.product_id}`)
-              .then((featureData) => {
-                productData.rows[0].features = featureData.rows;
-                //save the data into the cache
-                cache.set(`${req.params.product_id}SINGLE`, JSON.stringify(productData.rows[0]));
-                //actually send the data
-                res.status(200).json(productData.rows[0]);
-              })
-              .catch((err) => { throw err; });
+            //save the data into the cache
+            cache.set(`${req.params.product_id}SINGLE`, JSON.stringify(productData.rows[0]));
+            res.status(200).json(productData.rows[0]);
           })
           .catch((err) => { res.sendStatus(500); throw err; });
       } else {
