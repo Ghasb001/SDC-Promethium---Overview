@@ -24,8 +24,8 @@ const allProducts = (req, res) => {
       if (list === null) {
         client.query(`SELECT * FROM productlist where product_id <= ${req.query.count}`)
           .then((list) => {
-            cache.set(pageCount, JSON.stringify(list.rows));
             res.status(200).json(list.rows);
+            cache.set(pageCount, JSON.stringify(list.rows));
           })
           .catch((err) => { res.sendStatus(500); throw err; });
       } else {
@@ -42,9 +42,9 @@ const singleProduct = (req, res) => {
       if (store === null) {
         client.query(`select *, (select json_agg(f) as features from (select feature, value from features where features.product_id = productlist.product_id) as f) from productlist where product_id =${req.params.product_id};`)
           .then((productData) => {
-            //save the data into the cache
-            cache.set(`${req.params.product_id}SINGLE`, JSON.stringify(productData.rows[0]));
+            // send first, then save the data into the cache
             res.status(200).json(productData.rows[0]);
+            cache.set(`${req.params.product_id}SINGLE`, JSON.stringify(productData.rows[0]));
           })
           .catch((err) => { res.sendStatus(500); throw err; });
       } else {
@@ -79,10 +79,9 @@ const productStlye = (req, res) => {
               styles[i].skus = skuObj;
             }
             send.results = styles;
-            //save the data into the cache
-            cache.set(`${req.params.product_id}STYLES`, JSON.stringify(send));
-            // send the data
+            // send first, then save the data into the cache
             res.status(200).json(send);
+            cache.set(`${req.params.product_id}STYLES`, JSON.stringify(send));
           })
           .catch((err) => { res.sendStatus(500); throw err; });
       } else {
@@ -102,11 +101,10 @@ const relatedProducts = (req, res) => {
           .then((relatedData) => {
             var relatedArray = [];
             let relatedIds = relatedData.rows;
-            relatedIds.forEach(x => { relatedArray.push(Object.values(x)[0]) })
-            //save the data into the cache
+            relatedIds.forEach(x => { relatedArray.push(x.related_product_id) })
+            // send first, then save the data into the cache
+            res.status(200).json(relatedArray);
             cache.set(`${req.params.product_id}RELATED`, JSON.stringify(relatedArray));
-            // send the data
-            res.status(200).json(relatedArray)
           })
           .catch((err) => { res.sendStatus(500); throw err; });
       } else {
