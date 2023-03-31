@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
-//const router = express.Router();
 app.use(express.json());
 const { allProducts, singleProduct, productStlye, relatedProducts } = require('./queries.js');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require("dotenv").config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -12,6 +12,11 @@ app.use(cors());
 
 app.get('/', (req, res) => {
   res.sendStatus(200);
+});
+
+// add the token to the env file to prevent DDOS
+app.get(`/${process.env.loader}`, (req, res) => {
+  res.send(`${process.env.loader}`);
 });
 
 // API Helper function calls
